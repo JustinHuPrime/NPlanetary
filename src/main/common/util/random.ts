@@ -17,40 +17,6 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import GameServer from "./server";
-
-function showUsage(): void {
-  console.error("usage:");
-  console.error("npm start -- new <filename>");
-  console.error("npm start -- load <filename>");
-}
-
-if (process.argv.length < 3) {
-  showUsage();
-  process.exit(1);
-}
-
-switch (process.argv[2]) {
-  case "new": {
-    if (process.argv.length !== 4) {
-      showUsage();
-      process.exit(1);
-    }
-
-    GameServer.newGame(process.argv[3] as string);
-    break;
-  }
-  case "load": {
-    if (process.argv.length !== 4) {
-      showUsage();
-      process.exit(1);
-    }
-
-    GameServer.loadGame(process.argv[3] as string);
-    break;
-  }
-  default: {
-    showUsage();
-    process.exit(1);
-  }
+export function inRange(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
 }
