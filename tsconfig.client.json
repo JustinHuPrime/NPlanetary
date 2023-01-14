@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["src/main/server/**/*.ts"],
+  "compilerOptions": {
+    "outDir": "public_html/scripts",
+    "module": "ES2020",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"]
+  }
+}
