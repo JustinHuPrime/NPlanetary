@@ -31,12 +31,17 @@ class PlayerConnection {
   public server: GameServer;
   public id: string;
 
-  public constructor(socket: WebSocket, server: GameServer, id: string) {
+  public constructor(
+    socket: WebSocket,
+    server: GameServer,
+    id: string,
+    username: string,
+  ) {
     this.socket = socket;
     this.server = server;
     this.id = id;
 
-    debug.log(`player ${this.id} connected`);
+    debug.log(`player ${username} (${this.id}) connected`);
 
     this.socket.on("message", (data, _isBinary) => {
       // TODO
@@ -44,7 +49,7 @@ class PlayerConnection {
     this.socket.send(`a${this.id}`);
 
     this.socket.once("close", (_code, _reason) => {
-      debug.log(`player ${this.id} disconnected`);
+      debug.log(`player ${username} (${this.id}) disconnected`);
       this.server.removePlayer(this);
     });
   }
@@ -162,7 +167,7 @@ export default class GameServer {
           }
 
           // reconnected
-          const connection = new PlayerConnection(socket, this, id);
+          const connection = new PlayerConnection(socket, this, id, username);
           this.connections.push(connection);
           if (this.game.isFull()) {
             // only send state if game has started
@@ -182,7 +187,7 @@ export default class GameServer {
           }
 
           // connected
-          const connection = new PlayerConnection(socket, this, id());
+          const connection = new PlayerConnection(socket, this, id(), username);
           this.game.playerNames.push(username);
           this.game.playerIds.push(connection.id);
           this.connections.push(connection);
@@ -206,6 +211,7 @@ export default class GameServer {
         `server started at ${this.httpServer.url} - join code is ${this.joinCode}`,
       );
     });
+    this.save();
   }
 
   public removePlayer(player: PlayerConnection) {

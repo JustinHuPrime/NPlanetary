@@ -17,32 +17,32 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import Join from "./scene/join";
+import * as game from "../../common/game/game";
 
-interface Props {}
-
-interface State {
-  currentScene: JSX.Element;
+interface Props {
+  setCurrentScene: (scene: JSX.Element) => void;
+  id: string;
+  state: game.Game;
 }
 
-class SceneContainer extends React.Component<Props, State> {
-  constructor(props: {}) {
+interface State {
+  state: game.Game;
+}
+
+export default class Game extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
-    this.setCurrentScene = this.setCurrentScene.bind(this);
-
     this.state = {
-      currentScene: <Join setCurrentScene={this.setCurrentScene} />,
+      state: this.props.state,
     };
   }
 
-  public setCurrentScene(currentScene: JSX.Element) {
-    this.setState({ currentScene });
-  }
-
   public override render(): JSX.Element {
-    return this.state.currentScene;
+    return (
+      <div className="scene">
+        <h1>TODO</h1>
+      </div>
+    );
   }
 }
-
-ReactDOM.render(<SceneContainer />, document.getElementById("root"));

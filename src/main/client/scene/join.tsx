@@ -17,23 +17,34 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-interface Props {}
+import * as websocket from "../util/websocket";
+import ConnectionLost from "./connectionLost";
+import Waiting from "./waiting";
+
+interface Props {
+  setCurrentScene: (scene: JSX.Element) => void;
+}
 
 interface State {
   username: string;
   password: string;
+  connecting: boolean;
+  errorMessage: string | null;
 }
 
-export default class JoinScene extends React.Component<Props, State> {
+export default class Join extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = {
-      username: "",
-      password: "",
-    };
 
     this.onChange = this.onChange.bind(this);
     this.onClick = this.onClick.bind(this);
+
+    this.state = {
+      username: "",
+      password: "",
+      connecting: false,
+      errorMessage: null,
+    };
   }
 
   public onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -52,8 +63,55 @@ export default class JoinScene extends React.Component<Props, State> {
     }
   }
 
-  public onClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    alert(`Trying to join with ${this.state.username};${this.state.password}`);
+  public async onClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    try {
+      this.setState({ connecting: true });
+
+      await websocket.connect();
+
+      websocket.send(`${this.state.username}\n${this.state.password}`);
+
+      const response = await websocket.recv();
+      switch (response) {
+        case "b": {
+          // bad code
+          this.setState({ errorMessage: "Invalid join code" });
+          break;
+        }
+        case "f": {
+          // game full
+          this.setState({ errorMessage: "Game is full" });
+          break;
+        }
+        default: {
+          const matches = response.match(/^a([0-9]+)$/);
+          if (matches === null) {
+            websocket.protocolError("invalid join response");
+            return this.props.setCurrentScene(
+              <ConnectionLost setCurrentScene={this.props.setCurrentScene} />,
+            );
+          } else {
+            // connected
+            return this.props.setCurrentScene(
+              <Waiting
+                id={matches[1] as string}
+                setCurrentScene={this.props.setCurrentScene}
+              />,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof websocket.ConnectionError) {
+        return this.props.setCurrentScene(
+          <ConnectionLost setCurrentScene={this.props.setCurrentScene} />,
+        );
+      } else {
+        throw e;
+      }
+    } finally {
+      this.setState({ connecting: false });
+    }
   }
 
   public override render(): JSX.Element {
@@ -69,6 +127,7 @@ export default class JoinScene extends React.Component<Props, State> {
           name="username"
           value={this.state.username}
           onChange={this.onChange}
+          disabled={this.state.connecting}
         ></input>
         <br />
 
@@ -80,11 +139,20 @@ export default class JoinScene extends React.Component<Props, State> {
           name="password"
           value={this.state.password}
           onChange={this.onChange}
+          disabled={this.state.connecting}
         ></input>
         <br />
 
+        {this.state.errorMessage !== null && (
+          <span className="red">{this.state.errorMessage}</span>
+        )}
+
         <br />
-        <button type="submit" onClick={this.onClick}>
+        <button
+          type="submit"
+          onClick={this.onClick}
+          disabled={this.state.connecting}
+        >
           Join game!
         </button>
       </div>

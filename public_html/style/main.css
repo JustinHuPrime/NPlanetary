@@ -38,3 +38,7 @@ body {
 .scene {
   padding-left: 1em;
 }
+
+.red {
+  color: #ff0000;
+}

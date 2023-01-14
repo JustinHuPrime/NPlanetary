@@ -17,32 +17,36 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import Join from "./scene/join";
+import Join from "./join";
 
-interface Props {}
-
-interface State {
-  currentScene: JSX.Element;
+interface Props {
+  setCurrentScene: (scene: JSX.Element) => void;
 }
 
-class SceneContainer extends React.Component<Props, State> {
-  constructor(props: {}) {
+interface State {}
+
+export default class ConnectionLost extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
-    this.setCurrentScene = this.setCurrentScene.bind(this);
-
-    this.state = {
-      currentScene: <Join setCurrentScene={this.setCurrentScene} />,
-    };
+    this.onClick = this.onClick.bind(this);
   }
 
-  public setCurrentScene(currentScene: JSX.Element) {
-    this.setState({ currentScene });
+  public onClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    this.props.setCurrentScene(
+      <Join setCurrentScene={this.props.setCurrentScene} />,
+    );
   }
 
   public override render(): JSX.Element {
-    return this.state.currentScene;
+    return (
+      <div className="scene">
+        <h1>Connection Lost</h1>
+
+        <button type="button" onClick={this.onClick}>
+          Back
+        </button>
+      </div>
+    );
   }
 }
-
-ReactDOM.render(<SceneContainer />, document.getElementById("root"));
