@@ -19,13 +19,28 @@
 
 import JoinScene from "./scene/join";
 
-class SceneContainer extends React.Component {
+interface Props {}
+
+interface State {
+  currentScene: JSX.Element;
+}
+
+class SceneContainer extends React.Component<Props, State> {
   constructor(props: {}) {
     super(props);
+    this.state = {
+      currentScene: <JoinScene />,
+    };
+
+    this.setCurrentScene = this.setCurrentScene.bind(this);
+  }
+
+  public setCurrentScene(currentScene: JSX.Element) {
+    this.setState({ currentScene });
   }
 
   public override render(): JSX.Element {
-    return <JoinScene />;
+    return this.state.currentScene;
   }
 }
 
