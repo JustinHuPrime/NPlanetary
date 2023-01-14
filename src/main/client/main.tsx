@@ -17,4 +17,16 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
+import JoinScene from "./scene/join";
+
+class SceneContainer extends React.Component {
+  constructor(props: {}) {
+    super(props);
+  }
+
+  public override render(): JSX.Element {
+    return <JoinScene />;
+  }
+}
+
+ReactDOM.render(<SceneContainer />, document.getElementById("root"));
