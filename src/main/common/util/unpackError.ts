@@ -17,10 +17,10 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-export function inRange(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
+export default class UnpackError {
+  public message: string;
 
-export function d6(): number {
-  return Math.floor(inRange(1, 7));
+  constructor(message: string) {
+    this.message = message;
+  }
 }

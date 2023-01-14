@@ -17,10 +17,9 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-export function inRange(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
-
-export function d6(): number {
-  return Math.floor(inRange(1, 7));
+export function hasOwnProperty<X extends object, Y extends PropertyKey>(
+  obj: X,
+  prop: Y,
+): obj is X & Record<Y, unknown> {
+  return obj.hasOwnProperty(prop);
 }

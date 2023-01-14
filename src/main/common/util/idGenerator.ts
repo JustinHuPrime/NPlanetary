@@ -17,10 +17,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-export function inRange(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
+let counter = 0;
 
-export function d6(): number {
-  return Math.floor(inRange(1, 7));
+export default function id(): string {
+  return `${++counter}`;
 }
