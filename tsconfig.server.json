@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["src/main/client/**/*.ts"],
+  "exclude": ["src/main/client/**/*.ts", "src/main/client/**/*.tsx"],
   "compilerOptions": {
     "outDir": "compiled",
     "module": "CommonJS",

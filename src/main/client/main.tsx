@@ -17,4 +17,4 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-console.log("Hello, world!");
+ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));

@@ -1,6 +1,7 @@
 {
-  "include": ["src/main/**/*.ts"],
+  "include": ["src/main/**/*.ts", "src/main/client/main.tsx"],
   "compilerOptions": {
+    "jsx": "react",
     "strict": true,
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
