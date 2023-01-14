@@ -25,6 +25,15 @@ function showUsage(): void {
   console.error("npm start -- load <filename>");
 }
 
+console.log("NPlanetary version 0.1.8");
+console.log("Copyright 2023 Justin Hu");
+console.log(
+  "This is free software; see the source for copying conditions. There is NO",
+);
+console.log(
+  "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+);
+
 if (process.argv.length < 3) {
   showUsage();
   process.exit(1);
