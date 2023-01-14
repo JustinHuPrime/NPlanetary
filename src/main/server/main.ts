@@ -21,7 +21,7 @@ import GameServer from "./server";
 
 function showUsage(): void {
   console.error("usage:");
-  console.error("npm start -- new <filename>");
+  console.error("npm start -- new <filename> <numPlayers>");
   console.error("npm start -- load <filename>");
 }
 
@@ -41,12 +41,20 @@ if (process.argv.length < 3) {
 
 switch (process.argv[2]) {
   case "new": {
-    if (process.argv.length !== 4) {
+    if (process.argv.length !== 5) {
       showUsage();
       process.exit(1);
     }
 
-    GameServer.newGame(process.argv[3] as string);
+    const numPlayers = Number.parseFloat(process.argv[4] as string);
+    if (!(Number.isInteger(numPlayers) && 2 <= numPlayers && numPlayers <= 6)) {
+      console.error(
+        `invalid number of players: expected between 2 and 6, got '${process.argv[4]}'`,
+      );
+      process.exit(1);
+    }
+
+    GameServer.newGame(process.argv[3] as string, numPlayers);
     break;
   }
   case "load": {
