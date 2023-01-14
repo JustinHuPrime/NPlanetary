@@ -52,13 +52,16 @@ export default class Join extends React.Component<Props, State> {
       case "username": {
         this.setState({
           username: event.target.value,
+          errorMessage: null,
         });
         break;
       }
       case "password": {
         this.setState({
           password: event.target.value,
+          errorMessage: null,
         });
+        break;
       }
     }
   }

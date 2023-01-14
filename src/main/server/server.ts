@@ -153,6 +153,11 @@ export default class GameServer {
           const id = this.game.playerIds[
             this.game.playerNames.indexOf(username)
           ] as string;
+          debug.log(
+            `found player id ${id} with username ${username} at index ${this.game.playerNames.indexOf(
+              username,
+            )}`,
+          );
 
           if (
             this.connections.findIndex((connection, _index, _array) => {
@@ -187,9 +192,15 @@ export default class GameServer {
           }
 
           // connected
-          const connection = new PlayerConnection(socket, this, id(), username);
           this.game.playerNames.push(username);
-          this.game.playerIds.push(connection.id);
+          const connection = new PlayerConnection(
+            socket,
+            this,
+            this.game.playerIds[
+              this.game.playerNames.indexOf(username)
+            ] as string,
+            username,
+          );
           this.connections.push(connection);
           this.save();
 

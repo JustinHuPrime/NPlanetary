@@ -45,4 +45,9 @@ class SceneContainer extends React.Component<Props, State> {
   }
 }
 
-ReactDOM.render(<SceneContainer />, document.getElementById("root"));
+ReactDOM.render(
+  <React.StrictMode>
+    <SceneContainer />
+  </React.StrictMode>,
+  document.getElementById("root"),
+);
