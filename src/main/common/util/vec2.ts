@@ -61,6 +61,17 @@ export default class Vec2 {
     };
   }
 
+  public adjacent(): Vec2[] {
+    return [
+      new Vec2(this.q + 1, this.r),
+      new Vec2(this.q, this.r + 1),
+      new Vec2(this.q - 1, this.r + 1),
+      new Vec2(this.q - 1, this.r),
+      new Vec2(this.q, this.r - 1),
+      new Vec2(this.q + 1, this.r - 1),
+    ];
+  }
+
   public serialize(): PackedVec2 {
     return {
       q: this.q,

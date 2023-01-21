@@ -19,18 +19,17 @@
 
 import * as game from "../../../common/game/game";
 import Vec2 from "../../../common/util/vec2";
+import * as random from "../../../common/util/random";
 
 interface Props {
   state: game.Game;
 }
 
-interface State {
-  offsetX: number;
-  offsetY: number;
-  scale: number;
-}
+interface State {}
 
-let asteroidScatter: Array<Array<{ offset: Vec2; radius: number }>> = [];
+let asteroidScatter: Array<
+  Array<{ offset: { x: number; y: number }; radius: number }>
+> = [];
 
 const HEX_SCALE = 30;
 const HEX_WIDTH = (Math.sqrt(3) * HEX_SCALE) / 2;
@@ -38,10 +37,21 @@ const HEX_HEIGHT = HEX_SCALE;
 
 const BASE_WIDTH = 0.2;
 
+const GRAV_ARROW_BACK = 0;
+const GRAV_ARROW_FORWARD = 0.3;
+const GRAV_ARROW_WIDTH = 0.2;
+const GRAV_ARROW_HEAD_WIDTH = 0.4;
+const GRAV_ARROW_HEAD_FORWARD = 0.6;
+
 export default class Renderer extends React.Component<Props, State> {
   private canvas: React.RefObject<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
   private mouseDragStart: { x: number; y: number } | undefined;
+  private transform: {
+    offsetX: number;
+    offsetY: number;
+    scale: number;
+  };
 
   constructor(props: Props) {
     super(props);
@@ -53,12 +63,15 @@ export default class Renderer extends React.Component<Props, State> {
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.handleWheel = this.handleWheel.bind(this);
+    this.draw = this.draw.bind(this);
 
-    this.state = {
+    this.transform = {
       offsetX: 0,
       offsetY: 0,
       scale: 1,
     };
+
+    this.state = {};
   }
 
   public override componentDidMount() {
@@ -66,10 +79,6 @@ export default class Renderer extends React.Component<Props, State> {
     // window.addEventListener("resize", () => this.draw());
 
     this.ctx = this.canvas.current!.getContext("2d")!;
-    requestAnimationFrame((_) => this.draw());
-  }
-
-  public override componentDidUpdate() {
     requestAnimationFrame((_) => this.draw());
   }
 
@@ -93,14 +102,13 @@ export default class Renderer extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      offsetX: this.state.offsetX + ev.screenX - this.mouseDragStart.x,
-      offsetY: this.state.offsetY + ev.screenY - this.mouseDragStart.y,
-    });
+    this.transform.offsetX += ev.screenX - this.mouseDragStart.x;
+    this.transform.offsetY += ev.screenY - this.mouseDragStart.y;
     this.mouseDragStart = {
       x: ev.screenX,
       y: ev.screenY,
     };
+    requestAnimationFrame((_) => this.draw());
   }
 
   public handleMouseUp(ev: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
@@ -112,10 +120,8 @@ export default class Renderer extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      offsetX: this.state.offsetX + ev.screenX - this.mouseDragStart.x,
-      offsetY: this.state.offsetY + ev.screenY - this.mouseDragStart.y,
-    });
+    this.transform.offsetX += ev.screenX - this.mouseDragStart.x;
+    this.transform.offsetY += ev.screenY - this.mouseDragStart.y;
     this.mouseDragStart = undefined;
   }
 
@@ -128,50 +134,46 @@ export default class Renderer extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      offsetX: this.state.offsetX + ev.screenX - this.mouseDragStart.x,
-      offsetY: this.state.offsetY + ev.screenY - this.mouseDragStart.y,
-    });
+    this.transform.offsetX += ev.screenX - this.mouseDragStart.x;
+    this.transform.offsetY += ev.screenY - this.mouseDragStart.y;
     this.mouseDragStart = undefined;
   }
 
   public handleWheel(ev: React.WheelEvent<HTMLCanvasElement>) {
-    if (ev.deltaY > 0 && this.state.scale > 0.5) {
-      this.setState({
-        offsetX:
-          (this.state.offsetX -
-            ev.screenX +
-            this.canvas.current!.clientWidth / 2) /
-            1.125 +
-          ev.screenX -
-          this.canvas.current!.clientWidth / 2,
-        offsetY:
-          (this.state.offsetY -
-            ev.screenY +
-            this.canvas.current!.clientHeight / 2) /
-            1.125 +
-          ev.screenY -
-          this.canvas.current!.clientHeight / 2,
-        scale: this.state.scale / 1.125,
-      });
-    } else if (ev.deltaY < 0 && this.state.scale < 2) {
-      this.setState({
-        offsetX:
-          (this.state.offsetX -
-            ev.screenX +
-            this.canvas.current!.clientWidth / 2) *
-            1.125 +
-          ev.screenX -
-          this.canvas.current!.clientWidth / 2,
-        offsetY:
-          (this.state.offsetY -
-            ev.screenY +
-            this.canvas.current!.clientHeight / 2) *
-            1.125 +
-          ev.screenY -
-          this.canvas.current!.clientHeight / 2,
-        scale: this.state.scale * 1.125,
-      });
+    if (ev.deltaY > 0 && this.transform.scale > 0.5) {
+      this.transform.offsetX =
+        (this.transform.offsetX -
+          ev.screenX +
+          this.canvas.current!.clientWidth / 2) /
+          1.125 +
+        ev.screenX -
+        this.canvas.current!.clientWidth / 2;
+      this.transform.offsetY =
+        (this.transform.offsetY -
+          ev.screenY +
+          this.canvas.current!.clientHeight / 2) /
+          1.125 +
+        ev.screenY -
+        this.canvas.current!.clientHeight / 2;
+      this.transform.scale /= 1.125;
+      requestAnimationFrame((_) => this.draw());
+    } else if (ev.deltaY < 0 && this.transform.scale < 2) {
+      this.transform.offsetX =
+        (this.transform.offsetX -
+          ev.screenX +
+          this.canvas.current!.clientWidth / 2) *
+          1.125 +
+        ev.screenX -
+        this.canvas.current!.clientWidth / 2;
+      this.transform.offsetY =
+        (this.transform.offsetY -
+          ev.screenY +
+          this.canvas.current!.clientHeight / 2) *
+          1.125 +
+        ev.screenY -
+        this.canvas.current!.clientHeight / 2;
+      this.transform.scale *= 1.125;
+      requestAnimationFrame((_) => this.draw());
     }
   }
 
@@ -191,10 +193,10 @@ export default class Renderer extends React.Component<Props, State> {
 
     // set transform
     this.ctx.translate(
-      this.canvas.current!.width / 2 + this.state.offsetX,
-      this.canvas.current!.height / 2 + this.state.offsetY,
+      this.canvas.current!.width / 2 + this.transform.offsetX,
+      this.canvas.current!.height / 2 + this.transform.offsetY,
     );
-    this.ctx.scale(this.state.scale, this.state.scale);
+    this.ctx.scale(this.transform.scale, this.transform.scale);
 
     // layer 1: render grid
     this.ctx.strokeStyle = "#000000";
@@ -265,6 +267,140 @@ export default class Renderer extends React.Component<Props, State> {
           this.ctx.stroke();
         });
       }
+
+      // gravity
+      if (!(celestial instanceof game.MinorBody)) {
+        celestial.position.adjacent().forEach((pos, _index, _array) => {
+          const grav = pos.toScreen(HEX_SCALE);
+          const theta = Math.atan2(center.y - grav.y, center.x - grav.x);
+
+          this.ctx.beginPath();
+          this.ctx.fillStyle = "#000000";
+          this.ctx.moveTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_BACK -
+                  Math.sin(theta) * GRAV_ARROW_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_BACK +
+                  Math.cos(theta) * GRAV_ARROW_WIDTH),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_BACK -
+                  Math.sin(theta) * -GRAV_ARROW_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_BACK +
+                  Math.cos(theta) * -GRAV_ARROW_WIDTH),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_FORWARD -
+                  Math.sin(theta) * -GRAV_ARROW_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_FORWARD +
+                  Math.cos(theta) * -GRAV_ARROW_WIDTH),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_FORWARD -
+                  Math.sin(theta) * -GRAV_ARROW_HEAD_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_FORWARD +
+                  Math.cos(theta) * -GRAV_ARROW_HEAD_WIDTH),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_HEAD_FORWARD -
+                  Math.sin(theta) * 0),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_HEAD_FORWARD +
+                  Math.cos(theta) * 0),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_FORWARD -
+                  Math.sin(theta) * GRAV_ARROW_HEAD_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_FORWARD +
+                  Math.cos(theta) * GRAV_ARROW_HEAD_WIDTH),
+          );
+          this.ctx.lineTo(
+            grav.x +
+              HEX_SCALE *
+                (Math.cos(theta) * GRAV_ARROW_FORWARD -
+                  Math.sin(theta) * GRAV_ARROW_WIDTH),
+            grav.y +
+              HEX_SCALE *
+                (Math.sin(theta) * GRAV_ARROW_FORWARD +
+                  Math.cos(theta) * GRAV_ARROW_WIDTH),
+          );
+          this.ctx.closePath();
+          this.ctx.fill();
+        });
+      }
+    });
+
+    this.props.state.asteroids.forEach((asteroid, index, _array) => {
+      const pos = asteroid.position.toScreen(HEX_SCALE);
+      if (!asteroidScatter[index]) {
+        asteroidScatter[index] = [...new Array(100)].map(
+          (_value, _index, _array) => {
+            const radius = random.inRange(0, 0.05);
+            const bound = 0.5 - radius;
+            const q = random.inRange(-bound, bound);
+            const r = random.inRange(
+              Math.max(-bound, -q - bound),
+              Math.min(bound, -q + bound),
+            );
+            return {
+              offset: Vec2.toScreen(q, r, HEX_SCALE),
+              radius: radius,
+            };
+          },
+        );
+      }
+
+      asteroidScatter[index]!.forEach((scatter, _index, _array) => {
+        this.ctx.beginPath();
+        switch (asteroid.resource) {
+          case game.ResourceType.UNKNOWN: {
+            this.ctx.fillStyle = "#cc6600";
+            break;
+          }
+          case game.ResourceType.ORE: {
+            this.ctx.fillStyle = "#ffd700";
+            break;
+          }
+          case game.ResourceType.ICE: {
+            this.ctx.fillStyle = "#00d7ff";
+            break;
+          }
+          case game.ResourceType.NONE: {
+            this.ctx.fillStyle = "#000000";
+            break;
+          }
+        }
+        this.ctx.arc(
+          pos.x + scatter.offset.x,
+          pos.y + scatter.offset.y,
+          scatter.radius * HEX_SCALE,
+          0,
+          Math.PI * 2,
+        );
+        this.ctx.fill();
+      });
     });
 
     // layer 3: render velocity arrows
