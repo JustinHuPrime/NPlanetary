@@ -44,6 +44,17 @@ export default class Vec2 {
     return Math.max(Math.abs(ax - bx), Math.abs(ay - by), Math.abs(az - bz));
   }
 
+  public static toScreen(
+    q: number,
+    r: number,
+    scale: number,
+  ): { x: number; y: number } {
+    return {
+      x: scale * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r),
+      y: scale * ((3 / 2) * r),
+    };
+  }
+
   public serialize(): PackedVec2 {
     return {
       q: this.q,

@@ -39,7 +39,7 @@ export default class Game extends React.Component<Props, State> {
 
     this.state = {
       state: this.props.state,
-      currentTab: <Summary id={this.props.id} state={this.state.state} />,
+      currentTab: <Summary id={this.props.id} state={this.props.state} />,
     };
   }
 

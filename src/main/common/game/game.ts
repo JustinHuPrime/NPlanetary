@@ -34,6 +34,8 @@ export * from "./storage";
 export * from "./base";
 
 export class Game {
+  public static MAP_LIMIT = 50;
+
   public static PLAYER_CAPITALS = [
     "Washington",
     "Beijing",

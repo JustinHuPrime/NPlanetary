@@ -18,6 +18,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import Join from "./scene/join";
+import * as debug from "../common/util/debug";
 
 interface Props {}
 
@@ -43,6 +44,22 @@ class SceneContainer extends React.Component<Props, State> {
   public override render(): JSX.Element {
     return <div className="scene-container">{this.state.currentScene}</div>;
   }
+}
+
+document.addEventListener("contextmenu", (ev) => {
+  ev.preventDefault();
+});
+
+if (!debug.DEBUG) {
+  window.addEventListener(
+    "beforeunload",
+    (ev) => {
+      ev.preventDefault();
+      return (ev.returnValue =
+        "You will be disconnected, and must log back in.");
+    },
+    { capture: true },
+  );
 }
 
 // FIXME: hack to make typescript aware of existence of React
