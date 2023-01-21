@@ -45,9 +45,11 @@ class SceneContainer extends React.Component<Props, State> {
   }
 }
 
-ReactDOM.render(
+// FIXME: hack to make typescript aware of existence of React
+declare var ReactDOM: any;
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+root.render(
   <React.StrictMode>
     <SceneContainer />
   </React.StrictMode>,
-  document.getElementById("root"),
 );
