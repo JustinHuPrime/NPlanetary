@@ -1,5 +1,5 @@
 {
-  "include": ["src/main/**/*.ts", "src/main/client/main.tsx"],
+  "include": ["src/main/**/*.ts", "src/main/**/*.tsx"],
   "compilerOptions": {
     "jsx": "react",
     "strict": true,

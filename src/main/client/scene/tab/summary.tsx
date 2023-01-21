@@ -17,38 +17,25 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import * as game from "../../common/game/game";
-
-import Renderer from "./renderer/renderer";
-import Summary from "./tab/summary";
+import * as game from "../../../common/game/game";
 
 interface Props {
-  setCurrentScene: (scene: JSX.Element) => void;
   id: string;
   state: game.Game;
 }
 
-interface State {
-  state: game.Game;
-  currentTab: JSX.Element;
-}
+interface State {}
 
-export default class Game extends React.Component<Props, State> {
+export default class Summary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      state: this.props.state,
-      currentTab: <Summary id={this.props.id} state={this.state.state} />,
-    };
   }
 
   public override render(): JSX.Element {
     return (
-      <div className="game-scene">
-        <Renderer state={this.state.state} />
-        <div className="tab-container">{this.state.currentTab}</div>
+      <div className="tab">
+        <h1>Summary Tab</h1>
       </div>
-    );
+    ); // TODO
   }
 }

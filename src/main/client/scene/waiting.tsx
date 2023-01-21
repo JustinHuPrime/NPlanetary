@@ -56,7 +56,7 @@ export default class Waiting extends React.Component<Props, State> {
     try {
       parsed = JSON.parse(packet);
     } catch (e) {
-      websocket.protocolError("malformed packet");
+      websocket.protocolError("malformed packet (could not parse content)");
       return this.props.setCurrentScene(
         <ConnectionLost setCurrentScene={this.props.setCurrentScene} />,
       );
@@ -67,7 +67,7 @@ export default class Waiting extends React.Component<Props, State> {
       state = game.Game.deserialize(parsed);
     } catch (e) {
       if (e instanceof UnpackError) {
-        websocket.protocolError("malformed packet");
+        websocket.protocolError("malformed packet (invalid content)");
         return this.props.setCurrentScene(
           <ConnectionLost setCurrentScene={this.props.setCurrentScene} />,
         );

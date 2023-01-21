@@ -41,7 +41,7 @@ class SceneContainer extends React.Component<Props, State> {
   }
 
   public override render(): JSX.Element {
-    return this.state.currentScene;
+    return <div className="scene-container">{this.state.currentScene}</div>;
   }
 }
 
