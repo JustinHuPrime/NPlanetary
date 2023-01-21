@@ -16,9 +16,6 @@
     "type": "git",
     "url": "git+https://github.com/JustinHuPrime/NPlanetary.git"
   },
-  "keywords": [
-    "template"
-  ],
   "author": "Justin Hu <justin.hu@alumni.ubc.ca>",
   "license": "AGPL-3.0-or-later",
   "bugs": {
