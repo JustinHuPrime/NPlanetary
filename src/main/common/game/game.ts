@@ -33,6 +33,14 @@ export * from "./ordnance";
 export * from "./storage";
 export * from "./base";
 
+export type Entity =
+  | celestial.CelestialBody
+  | celestial.AsteroidCluster
+  | ship.Ship
+  | ordnance.Ordnance
+  | base.Base
+  | base.Outpost;
+
 export class Game {
   public static MAP_LIMIT = 50;
 

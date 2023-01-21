@@ -80,7 +80,7 @@ export default class Waiting extends React.Component<Props, State> {
       <Game
         setCurrentScene={this.props.setCurrentScene}
         id={this.props.id}
-        state={state}
+        initialState={state}
       />,
     );
   }

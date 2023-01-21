@@ -20,13 +20,17 @@
 import * as game from "../../../common/game/game";
 import Vec2 from "../../../common/util/vec2";
 import * as random from "../../../common/util/random";
+import EntityMap from "../../util/entityMap";
 
 interface Props {
   state: game.Game;
+  entityMap: EntityMap;
+  selectedEntity: string | null;
 }
 
 interface State {}
 
+// note: this really must be a global; it must be consistent across different instances of a render component
 let asteroidScatter: Array<
   Array<{ offset: { x: number; y: number }; radius: number }>
 > = [];
@@ -42,6 +46,10 @@ const GRAV_ARROW_FORWARD = 0.3;
 const GRAV_ARROW_WIDTH = 0.2;
 const GRAV_ARROW_HEAD_WIDTH = 0.4;
 const GRAV_ARROW_HEAD_FORWARD = 0.6;
+
+const SQRT_VELOCITY_ARROW_HEAD_LENGTH = 0.3;
+
+const ENTITY_SIZE = 0.6;
 
 export default class Renderer extends React.Component<Props, State> {
   private canvas: React.RefObject<HTMLCanvasElement>;
@@ -247,6 +255,7 @@ export default class Renderer extends React.Component<Props, State> {
               this.props.state.playerIds.indexOf(base.owner)
             ]!;
           this.ctx.strokeStyle = "#000000";
+          this.ctx.lineWidth = 1;
           this.ctx.arc(
             center.x,
             center.y,
@@ -404,8 +413,66 @@ export default class Renderer extends React.Component<Props, State> {
     });
 
     // layer 3: render velocity arrows
+    this.props.state.ships.forEach((ship, _index, _array) => {
+      this.renderVelocityArrow(
+        ship,
+        !this.props.selectedEntity || ship.id === this.props.selectedEntity,
+      );
+    });
+    this.props.state.ordnance.forEach((ordnance, _index, _array) => {
+      this.renderVelocityArrow(
+        ordnance,
+        !this.props.selectedEntity || ordnance.id === this.props.selectedEntity,
+      );
+    });
 
     // layer 4: render entities
+  }
+
+  private renderVelocityArrow(
+    entity: { position: Vec2; velocity: Vec2 },
+    highlight: boolean,
+  ) {
+    if (entity.velocity.q === 0 && entity.velocity.r === 0) return;
+
+    const { x, y } = entity.position.toScreen(HEX_SCALE);
+    const { x: dx, y: dy } = entity.velocity.toScreen(HEX_SCALE);
+    const theta = Math.atan2(dy, dx);
+
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = highlight ? "#000000" : "#808080";
+    this.ctx.lineWidth = 2;
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x + dx, y + dy);
+
+    this.ctx.moveTo(
+      x +
+        dx +
+        HEX_SCALE *
+          (Math.cos(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH -
+            Math.sin(theta) * SQRT_VELOCITY_ARROW_HEAD_LENGTH),
+      y +
+        dy +
+        HEX_SCALE *
+          (Math.sin(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH +
+            Math.cos(theta) * SQRT_VELOCITY_ARROW_HEAD_LENGTH),
+    );
+    this.ctx.lineTo(x + dx, y + dy);
+
+    this.ctx.moveTo(
+      x +
+        dx +
+        HEX_SCALE *
+          (Math.cos(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH -
+            Math.sin(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH),
+      y +
+        dy +
+        HEX_SCALE *
+          (Math.sin(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH +
+            Math.cos(theta) * -SQRT_VELOCITY_ARROW_HEAD_LENGTH),
+    );
+    this.ctx.lineTo(x + dx, y + dy);
+    this.ctx.stroke();
   }
 
   public override render(): JSX.Element {
