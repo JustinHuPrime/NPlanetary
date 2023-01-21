@@ -37,10 +37,16 @@ export default class Game extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.setCurrentTab = this.setCurrentTab.bind(this);
+
     this.state = {
       state: this.props.state,
       currentTab: <Summary id={this.props.id} state={this.props.state} />,
     };
+  }
+
+  public setCurrentTab(currentTab: JSX.Element) {
+    this.setState({ currentTab });
   }
 
   public override render(): JSX.Element {

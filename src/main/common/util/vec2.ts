@@ -44,6 +44,12 @@ export default class Vec2 {
     return Math.max(Math.abs(ax - bx), Math.abs(ay - by), Math.abs(az - bz));
   }
 
+  public toScreen(scale: number): { x: number; y: number } {
+    return {
+      x: scale * (Math.sqrt(3) * this.q + (Math.sqrt(3) / 2) * this.r),
+      y: scale * ((3 / 2) * this.r),
+    };
+  }
   public static toScreen(
     q: number,
     r: number,

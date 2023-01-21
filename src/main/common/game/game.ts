@@ -36,6 +36,15 @@ export * from "./base";
 export class Game {
   public static MAP_LIMIT = 50;
 
+  public static PLAYER_COLOURS = [
+    "#0000ff",
+    "#ff0000",
+    "#00ff00",
+    "#ffff00",
+    "#ff00ff",
+    "#00ffff",
+  ];
+
   public static PLAYER_CAPITALS = [
     "Washington",
     "Beijing",
@@ -180,6 +189,8 @@ export class Game {
         id(),
         terra.position.clone(),
       );
+      terraBase.cargo.money = Game.STARTING_MONEY;
+      terra.surfaceBases[idx] = terraBase;
     }
 
     // asteroid belt
