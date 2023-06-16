@@ -1,0 +1,5 @@
+bin/
+deps/
+docs/
+nplanetary
+nplanetary-test
