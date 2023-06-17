@@ -34,7 +34,7 @@ struct SodiumInit {
 } sodiumInit;
 
 CryptoSocket::CryptoSocket(string const &hostname, string const &password,
-                           stop_token stopFlag)
+                           stop_token const &stopFlag)
     : CryptoSocket(RawSocket(hostname, stopFlag), password) {}
 
 void CryptoSocket::read(uint8_t *buf, size_t n) {
@@ -233,7 +233,7 @@ void CryptoSocket::pull() {
   recvBuffer.emplace_back(move(plaintext));
 }
 
-CryptoServer::CryptoServer(string const &password, stop_token stopFlag)
+CryptoServer::CryptoServer(string const &password, stop_token const &stopFlag)
     : rawServer(stopFlag), password(password) {}
 
 CryptoSocket CryptoServer::accept() {

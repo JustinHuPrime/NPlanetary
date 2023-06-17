@@ -37,7 +37,7 @@ using namespace std;
 using namespace std::chrono;
 
 namespace nplanetary::networking {
-RawSocket::RawSocket(string const &hostname, std::stop_token stopFlag)
+RawSocket::RawSocket(string const &hostname, stop_token const &stopFlag)
     : fd(0), stopFlag(stopFlag) {
   // do DNS lookup
   struct addrinfo hints = {};
@@ -269,10 +269,10 @@ void RawSocket::write(uint8_t const *buf, size_t count) {
   }
 }
 
-RawSocket::RawSocket(int fd, stop_token stopFlag) noexcept
+RawSocket::RawSocket(int fd, stop_token const &stopFlag) noexcept
     : fd(fd), stopFlag(stopFlag) {}
 
-RawServer::RawServer(stop_token stopFlag) : fd(0), stopFlag(stopFlag) {
+RawServer::RawServer(stop_token const &stopFlag) : fd(0), stopFlag(stopFlag) {
   // setup for bind lookup
   struct addrinfo hints = {};
   hints.ai_flags = AI_PASSIVE | AI_V4MAPPED | AI_ADDRCONFIG | AI_NUMERICSERV;

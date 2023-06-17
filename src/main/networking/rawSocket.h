@@ -41,7 +41,8 @@ class RawSocket {
   /**
    * Create a socket connecting to some host
    */
-  explicit RawSocket(std::string const &hostname, std::stop_token stopFlag);
+  explicit RawSocket(std::string const &hostname,
+                     std::stop_token const &stopFlag);
   RawSocket(RawSocket const &) noexcept = delete;
   RawSocket(RawSocket &&) noexcept;
 
@@ -63,7 +64,7 @@ class RawSocket {
 
  private:
 #if defined(__linux__)
-  explicit RawSocket(int fd, std::stop_token stopFlag) noexcept;
+  explicit RawSocket(int fd, std::stop_token const &stopFlag) noexcept;
 
   int fd;
   std::stop_token stopFlag;
@@ -75,7 +76,7 @@ class RawServer {
   /**
    * Create a server socket
    */
-  explicit RawServer(std::stop_token stopFlag);
+  explicit RawServer(std::stop_token const &stopFlag);
   RawServer(RawServer const &) noexcept = delete;
   RawServer(RawServer &&) noexcept;
 

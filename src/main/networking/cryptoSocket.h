@@ -42,7 +42,7 @@ class CryptoSocket {
 
  public:
   CryptoSocket(std::string const &hostname, std::string const &password,
-               std::stop_token stopFlag);
+               std::stop_token const &stopFlag);
   CryptoSocket(CryptoSocket const &) noexcept = delete;
   CryptoSocket(CryptoSocket &&) noexcept = default;
 
@@ -76,7 +76,7 @@ class CryptoSocket {
 
 class CryptoServer {
  public:
-  CryptoServer(std::string const &password, std::stop_token stopFlag);
+  CryptoServer(std::string const &password, std::stop_token const &stopFlag);
   CryptoServer(CryptoServer const &) noexcept = delete;
   CryptoServer(CryptoServer &&) noexcept = default;
 
