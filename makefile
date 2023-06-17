@@ -83,9 +83,9 @@ WARNINGS := -pedantic -pedantic-errors -Wall -Wextra -Wdouble-promotion\
 -Woverloaded-virtual -Wsign-promo -Wunused -Wdisabled-optimization
 
 OPTIONS := -std=c++20 -D_POSIX_C_SOURCE=202207L -I$(SRCDIR)\
-#$(shell pkg-config --cflags )
+$(shell pkg-config --cflags libsodium)
 TOPTIONS := -I$(TSRCDIR) -Ilibs/Catch2/src -Ilibs/Catch2/Build/generated-includes
-LIBS := #$(shell pkg-config --libs )
+LIBS := $(shell pkg-config --libs libsodium)
 TLIBS := libs/Catch2/Build/src/libCatch2Main.a libs/Catch2/Build/src/libCatch2.a
 
 DEBUGOPTIONS := -Og -ggdb
