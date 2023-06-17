@@ -50,6 +50,8 @@ class RawSocket {
   RawSocket &operator=(RawSocket const &) noexcept = delete;
   RawSocket &operator=(RawSocket &&) noexcept;
 
+  operator bool() const noexcept;
+
   /**
    * Reads count bytes into buf
    */

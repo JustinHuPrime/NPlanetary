@@ -97,6 +97,8 @@ RawSocket &RawSocket::operator=(RawSocket &&other) noexcept {
   return *this;
 }
 
+RawSocket::operator bool() const noexcept { return fd != 0; }
+
 void RawSocket::read(uint8_t *buf, size_t count) {
   // cancel on this if need be
   if (stopFlag.stop_requested()) {

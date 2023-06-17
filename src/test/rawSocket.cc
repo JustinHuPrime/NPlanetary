@@ -21,53 +21,59 @@
 
 #include <array>
 #include <catch2/catch_test_macros.hpp>
-#include <condition_variable>
 #include <thread>
 
 using namespace std;
 using namespace nplanetary::networking;
 
-TEST_CASE("Can construct server socket", "[networking]") {
+TEST_CASE("Can construct raw server socket", "[networking]") {
   stop_source source;
-  REQUIRE_NOTHROW(RawServer(source.get_token()));
+  RawServer(source.get_token());
 }
 
-TEST_CASE("Can construct client socket and connect to server", "[networking]") {
+TEST_CASE("Can construct raw client socket and connect to server",
+          "[networking]") {
   stop_source source;
   RawServer server = RawServer(source.get_token());
-  REQUIRE_NOTHROW(RawSocket("127.0.0.1", source.get_token()));
+  RawSocket("127.0.0.1", source.get_token());
 }
 
-TEST_CASE("Can connect to server and send data", "[networking]") {
+TEST_CASE("Can connect to raw server and send data", "[networking]") {
   stop_source source;
   RawServer server = RawServer(source.get_token());
 
   array<uint8_t, 16> message = {
       0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
   };
-  jthread sender = jthread([&message](stop_token stopFlag) {
-    RawSocket socket("127.0.0.1", stopFlag);
-    socket.write(message.data(), message.size());
-  });
+  thread sender = thread(
+      [&message](stop_token stopFlag) {
+        RawSocket socket = RawSocket("127.0.0.1", stopFlag);
+        socket.write(message.data(), message.size());
+      },
+      source.get_token());
   RawSocket connection = server.accept();
   array<uint8_t, 16> recvd;
   connection.read(recvd.data(), recvd.size());
   REQUIRE(message == recvd);
+  sender.join();
 }
 
-TEST_CASE("Can connect to server and receive data", "[networking]") {
+TEST_CASE("Can connect to raw server and receive data", "[networking]") {
   stop_source source;
   RawServer server = RawServer(source.get_token());
 
   array<uint8_t, 16> message = {
       0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
   };
-  jthread sender = jthread([&message](stop_token stopFlag) {
-    RawSocket socket("127.0.0.1", stopFlag);
-    array<uint8_t, 16> recvd;
-    socket.read(recvd.data(), recvd.size());
-    REQUIRE(message == recvd);
-  });
+  thread sender = thread(
+      [&message](stop_token stopFlag) {
+        RawSocket socket = RawSocket("127.0.0.1", stopFlag);
+        array<uint8_t, 16> recvd;
+        socket.read(recvd.data(), recvd.size());
+        REQUIRE(message == recvd);
+      },
+      source.get_token());
   RawSocket connection = server.accept();
   connection.write(message.data(), message.size());
+  sender.join();
 }
