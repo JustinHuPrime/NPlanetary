@@ -37,6 +37,14 @@ CryptoSocket::CryptoSocket(string const &hostname, string const &password,
                            stop_token const &stopFlag)
     : CryptoSocket(RawSocket(hostname, stopFlag), password) {}
 
+CryptoSocket::~CryptoSocket() {
+  try {
+    flush();
+  } catch (...) {
+    // swallow exceptions - this is a destructor
+  }
+}
+
 void CryptoSocket::read(uint8_t *buf, size_t n) {
   // do we require more chunks?
   if (recvBuffer.empty()) {

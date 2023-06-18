@@ -46,7 +46,7 @@ class CryptoSocket {
   CryptoSocket(CryptoSocket const &) noexcept = delete;
   CryptoSocket(CryptoSocket &&) noexcept = default;
 
-  ~CryptoSocket() noexcept = default;
+  ~CryptoSocket() noexcept;
 
   CryptoSocket &operator=(CryptoSocket const &) noexcept = delete;
   CryptoSocket &operator=(CryptoSocket &&) noexcept = default;
