@@ -182,7 +182,7 @@ CryptoSocket::CryptoSocket(RawSocket rawSocket, std::string const &password)
           &recvState, recvVerify.data(), nullptr, nullptr,
           recvVerifyCiphered.data(), recvVerifyCiphered.size(), nullptr,
           0) != 0) {
-    throw runtime_error("invalid message detected");
+    throw PasswordMismatchFlag();
   }
 
   // reply
@@ -199,7 +199,7 @@ CryptoSocket::CryptoSocket(RawSocket rawSocket, std::string const &password)
           &recvState, recvVerify.data(), nullptr, nullptr,
           recvVerifyCiphered.data(), recvVerifyCiphered.size(), nullptr,
           0) != 0) {
-    throw runtime_error("invalid message detected");
+    throw PasswordMismatchFlag();
   }
 
   if (sendVerify != recvVerify) {

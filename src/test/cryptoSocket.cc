@@ -92,7 +92,7 @@ TEST_CASE("Can connect to crypto server and receive data", "[networking]") {
 }
 
 TEST_CASE("Invalid password raises exception in crypto networking",
-          "[networking][.disabled]") {
+          "[networking]") {
   stop_source source;
   CryptoServer server = CryptoServer("password", source.get_token());
   thread client = thread(
@@ -104,6 +104,10 @@ TEST_CASE("Invalid password raises exception in crypto networking",
         }
       },
       source.get_token());
-  CryptoSocket connection = server.accept();
+  try {
+    CryptoSocket connection = server.accept();
+    FAIL("Expected password mismatch flag to be thrown");
+  } catch (PasswordMismatchFlag const &) {
+  }
   client.join();
 }
