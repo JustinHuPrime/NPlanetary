@@ -40,13 +40,13 @@ TEST_CASE("Can construct crypto client socket and connect to server",
           "[networking]") {
   stop_source source;
   CryptoServer server = CryptoServer("password", source.get_token());
-  jthread client = jthread([](stop_token stopFlag) {
-    try {
-      CryptoSocket("127.0.0.1", "password", stopFlag);
-    } catch (stop_token const &) {
-    }
-  });
+  thread client = thread(
+      [](stop_token stopFlag) {
+        CryptoSocket("127.0.0.1", "password", stopFlag);
+      },
+      source.get_token());
   server.accept();
+  client.join();
 }
 
 TEST_CASE("Can connect to crypto server and send data", "[networking]") {
@@ -56,15 +56,18 @@ TEST_CASE("Can connect to crypto server and send data", "[networking]") {
   array<uint8_t, 16> message = {
       0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7,
   };
-  jthread sender = jthread([&message](stop_token stopFlag) {
-    CryptoSocket socket = CryptoSocket("127.0.0.1", "password", stopFlag);
-    socket.write(message.data(), message.size());
-    socket.flush();
-  });
+  thread sender = thread(
+      [&message](stop_token stopFlag) {
+        CryptoSocket socket = CryptoSocket("127.0.0.1", "password", stopFlag);
+        socket.write(message.data(), message.size());
+        socket.flush();
+      },
+      source.get_token());
   CryptoSocket connection = server.accept();
   array<uint8_t, 16> recvd;
   connection.read(recvd.data(), recvd.size());
   REQUIRE(message == recvd);
+  sender.join();
 }
 
 TEST_CASE("Can connect to crypto server and receive data", "[networking]") {
