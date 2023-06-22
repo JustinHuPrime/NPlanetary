@@ -44,7 +44,7 @@ Socket::Socket(string const &hostname, string const &password,
     : Socket(CryptoSocket(hostname, password, stopFlag)) {}
 
 Socket &Socket::operator<<(uint8_t x) {
-  array<uint8_t, sizeof(uint8_t) + 1> formatted;
+  array<uint8_t, sizeof(uint8_t) + sizeof(uint8_t)> formatted;
   formatted[0] = U8_TAG;
   formatted[1] = (x >> 0) & 0xff;
 
@@ -52,7 +52,7 @@ Socket &Socket::operator<<(uint8_t x) {
   return *this;
 }
 Socket &Socket::operator<<(uint16_t x) {
-  array<uint8_t, sizeof(uint16_t) + 1> formatted;
+  array<uint8_t, sizeof(uint16_t) + sizeof(uint8_t)> formatted;
   formatted[0] = U16_TAG;
   formatted[1] = (x >> 0) & 0xff;
   formatted[2] = (x >> 8) & 0xff;
@@ -61,7 +61,7 @@ Socket &Socket::operator<<(uint16_t x) {
   return *this;
 }
 Socket &Socket::operator<<(uint32_t x) {
-  array<uint8_t, sizeof(uint32_t) + 1> formatted;
+  array<uint8_t, sizeof(uint32_t) + sizeof(uint8_t)> formatted;
   formatted[0] = U32_TAG;
   formatted[1] = (x >> 0) & 0xff;
   formatted[2] = (x >> 8) & 0xff;
@@ -72,7 +72,7 @@ Socket &Socket::operator<<(uint32_t x) {
   return *this;
 }
 Socket &Socket::operator<<(uint64_t x) {
-  array<uint8_t, sizeof(uint32_t) + 1> formatted;
+  array<uint8_t, sizeof(uint32_t) + sizeof(uint8_t)> formatted;
   formatted[0] = U64_TAG;
   formatted[1] = (x >> 0) & 0xff;
   formatted[2] = (x >> 8) & 0xff;
@@ -88,7 +88,7 @@ Socket &Socket::operator<<(uint64_t x) {
 }
 Socket &Socket::operator<<(int8_t x) {
   uint8_t u = pun<int8_t, uint8_t>(x);
-  array<uint8_t, sizeof(uint8_t) + 1> formatted;
+  array<uint8_t, sizeof(uint8_t) + sizeof(uint8_t)> formatted;
   formatted[0] = S8_TAG;
   formatted[1] = (u >> 0) & 0xff;
 
@@ -97,7 +97,7 @@ Socket &Socket::operator<<(int8_t x) {
 }
 Socket &Socket::operator<<(int16_t x) {
   uint16_t u = pun<int16_t, uint16_t>(x);
-  array<uint8_t, sizeof(uint16_t) + 1> formatted;
+  array<uint8_t, sizeof(uint16_t) + sizeof(uint8_t)> formatted;
   formatted[0] = S16_TAG;
   formatted[1] = (u >> 0) & 0xff;
   formatted[2] = (u >> 8) & 0xff;
@@ -107,7 +107,7 @@ Socket &Socket::operator<<(int16_t x) {
 }
 Socket &Socket::operator<<(int32_t x) {
   uint32_t u = pun<int32_t, uint32_t>(x);
-  array<uint8_t, sizeof(uint32_t) + 1> formatted;
+  array<uint8_t, sizeof(uint32_t) + sizeof(uint8_t)> formatted;
   formatted[0] = S32_TAG;
   formatted[1] = (u >> 0) & 0xff;
   formatted[2] = (u >> 8) & 0xff;
@@ -119,7 +119,7 @@ Socket &Socket::operator<<(int32_t x) {
 }
 Socket &Socket::operator<<(int64_t x) {
   uint64_t u = pun<int64_t, uint64_t>(x);
-  array<uint8_t, sizeof(uint32_t) + 1> formatted;
+  array<uint8_t, sizeof(uint32_t) + sizeof(uint8_t)> formatted;
   formatted[0] = S64_TAG;
   formatted[1] = (u >> 0) & 0xff;
   formatted[2] = (u >> 8) & 0xff;
@@ -133,18 +133,34 @@ Socket &Socket::operator<<(int64_t x) {
   cryptoSocket.write(formatted.data(), formatted.size());
   return *this;
 }
+Socket &Socket::operator<<(char x) {
+  array<uint8_t, sizeof(uint8_t) + sizeof(uint8_t)> formatted;
+  formatted[0] = CHAR_TAG;
+  formatted[1] = pun<char, uint8_t>(x);
+
+  cryptoSocket.write(formatted.data(), formatted.size());
+  return *this;
+}
 Socket &Socket::operator<<(string const &x) {
   if (x.size() > numeric_limits<uint16_t>::max()) {
     throw runtime_error("string too long to send");
   }
 
-  array<uint8_t, sizeof(uint16_t) + 1> formatted;
+  array<uint8_t, sizeof(uint16_t) + sizeof(uint8_t)> formatted;
   formatted[0] = STRING_TAG;
   formatted[1] = (x.size() >> 0) & 0xff;
   formatted[2] = (x.size() >> 8) & 0xff;
 
   cryptoSocket.write(formatted.data(), formatted.size());
   cryptoSocket.write(reinterpret_cast<uint8_t const *>(x.c_str()), x.size());
+  return *this;
+}
+Socket &Socket::operator<<(bool b) {
+  array<uint8_t, sizeof(uint8_t) + sizeof(uint8_t)> formatted;
+  formatted[0] = BOOL_TAG;
+  formatted[1] = b ? 1 : 0;
+
+  cryptoSocket.write(formatted.data(), formatted.size());
   return *this;
 }
 
@@ -296,6 +312,21 @@ Socket &Socket::operator>>(int64_t &x) {
 
   return *this;
 }
+Socket &Socket::operator>>(char &x) {
+  uint8_t tag;
+  cryptoSocket.read(&tag, 1);
+
+  if (tag != CHAR_TAG) {
+    throw runtime_error("type tag mismatch");
+  }
+
+  array<uint8_t, sizeof(char)> bytes;
+  cryptoSocket.read(bytes.data(), bytes.size());
+
+  x = pun<uint8_t, char>(bytes[0]);
+
+  return *this;
+}
 Socket &Socket::operator>>(string &x) {
   uint8_t tag;
   cryptoSocket.read(&tag, 1);
@@ -312,6 +343,21 @@ Socket &Socket::operator>>(string &x) {
 
   x.resize(size);
   cryptoSocket.read(reinterpret_cast<uint8_t *>(x.data()), size);
+  return *this;
+}
+Socket &Socket::operator>>(bool &x) {
+  uint8_t tag;
+  cryptoSocket.read(&tag, 1);
+
+  if (tag != BOOL_TAG) {
+    throw runtime_error("type tag mismatch");
+  }
+
+  array<uint8_t, sizeof(uint8_t)> bytes;
+  cryptoSocket.read(bytes.data(), bytes.size());
+
+  x = bytes[0] != 0;
+
   return *this;
 }
 

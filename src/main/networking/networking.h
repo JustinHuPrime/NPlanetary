@@ -40,7 +40,9 @@ class Socket {
   static constexpr uint8_t S16_TAG = 'S';
   static constexpr uint8_t S32_TAG = 'I';
   static constexpr uint8_t S64_TAG = 'L';
+  static constexpr uint8_t CHAR_TAG = 'c';
   static constexpr uint8_t STRING_TAG = 'C';
+  static constexpr uint8_t BOOL_TAG = 'o';
 
   Socket(std::string const &hostname, std::string const &password,
          std::stop_token const &stopFlag);
@@ -60,7 +62,9 @@ class Socket {
   Socket &operator<<(int16_t);
   Socket &operator<<(int32_t);
   Socket &operator<<(int64_t);
+  Socket &operator<<(char);
   Socket &operator<<(std::string const &);
+  Socket &operator<<(bool);
 
   void flush();
 
@@ -72,7 +76,9 @@ class Socket {
   Socket &operator>>(int16_t &);
   Socket &operator>>(int32_t &);
   Socket &operator>>(int64_t &);
+  Socket &operator>>(char &);
   Socket &operator>>(std::string &);
+  Socket &operator>>(bool &);
 
  private:
   explicit Socket(CryptoSocket cryptoSocket) noexcept;
